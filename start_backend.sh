@@ -1,1 +1,0 @@
-cd inprocess-backend & npm start
