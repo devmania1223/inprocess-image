@@ -28,7 +28,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             dcs: DataTypes.STRING,
             license_necessary: DataTypes.NUMBER,
-            license: DataTypes.NUMBER
+            license: DataTypes.NUMBER,
+            risk_level: DataTypes.NUMBER,
+            engineers_need: DataTypes.NUMBER,
+            opportunities: DataTypes.STRING,
+            pm_involvement: DataTypes.NUMBER,
         },
         {}
     );
@@ -39,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
         Project.hasMany(models.Celoxis);
         Project.hasMany(models.Task);
         Project.hasMany(models.ParentTasks);
+        Project.hasMany(models.Milestone);
     };
 
     return Project;

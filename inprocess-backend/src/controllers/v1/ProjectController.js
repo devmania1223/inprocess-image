@@ -62,6 +62,7 @@ class ProjectController {
                 await projectRepository.updateProjectByFilter(req.body, {
                     id: req.params.id
                 });
+            console.log(req.body)
             response.status = HttpStatus.OK;
             response.message = constants.controllerMessage.SUCCESS;
             response.body = responseFromRepository;

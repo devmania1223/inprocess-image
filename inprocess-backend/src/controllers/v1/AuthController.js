@@ -65,7 +65,6 @@ class AuthController {
                 });
             }
             const isValid = await bcrypt.compare(password, user.password);
-		
             if (isValid) {
                 user = user.dataValues;
                 const token = new JWT().generateToken(user);

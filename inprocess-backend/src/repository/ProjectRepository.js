@@ -6,7 +6,7 @@ const Task = require('../models').Task;
 const User = require('../models').User;
 const Timesheet = require('../models').Timesheet;
 const ParentTasks = require('../models').ParentTasks;
-const UserTask = require('../models').UserTask;
+const Milestone = require('../models').Milestone;
 const DB = require('../models');
 const CeloxisService = require('../services/celoxisService');
 
@@ -38,6 +38,9 @@ class ProjectRepository {
     async updateProjectByFilter(data, filter) {
         filter.isDisable = false;
         filter.isDelete = false;
+        await Milestone.destroy({where: {projectId: filter.id}});
+        console.log("data.milestones",data.milestones)
+        await Milestone.bulkCreate(data.milestones);
         return await Project.update(data, { where: filter, attributes });
     }
 

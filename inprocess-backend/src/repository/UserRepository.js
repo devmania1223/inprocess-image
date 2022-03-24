@@ -1,6 +1,6 @@
 const User = require('../models').User;
 const sequelize = require('sequelize');
-
+const attributes = { exclude: ['isDisable', 'isDelete'] };
 class UserRepository {
     async findAllUser() {
         const filters = {
@@ -30,14 +30,9 @@ class UserRepository {
     }
 
     async updateUser(filter, data) {
-        console.log("updateUser",filter,data)
-        let user = await User.findByPk(filter.id);
-        user = await user.update(data);
-        return user;
-    }
-
-    async deleteUser(filter) {
-        return await User.destroy({ where: filter });
+        filter.isDisable = false;
+        filter.isDelete = false;
+        return await User.update(data, { where: filter, attributes });
     }
 
     async findUser(filter, attributes = ['id', 'password', 'email', 'name', 'role']) {

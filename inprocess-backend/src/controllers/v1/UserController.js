@@ -118,9 +118,7 @@ class UserController {
             response.body = responseFromRepository.dataValues;
             response.body.createdAt = moment(response.body.createdAt).format('YYYY-MM-DD HH:mm:ss');
             response.body.updatedAt = moment(response.body.updatedAt).format('YYYY-MM-DD HH:mm:ss');
-            console.log("response.body",response.body)
         } catch (error) {
-            console.log(error);
             response.status = HttpStatus.INTERNAL_SERVER_ERROR;
             response.message = error.message;
         }
@@ -141,9 +139,7 @@ class UserController {
             response.body = responseFromRepository.dataValues;
             response.body.createdAt = moment(response.body.createdAt).format('YYYY-MM-DD HH:mm:ss');
             response.body.updatedAt = moment(response.body.updatedAt).format('YYYY-MM-DD HH:mm:ss');
-            console.log("response.body",response.body);   
         } catch (error) {
-            console.log("updateUser",error,error.message);
             response.status = HttpStatus.INTERNAL_SERVER_ERROR;
             response.message = error.message;
         }
@@ -153,14 +149,14 @@ class UserController {
     async deleteUser(req, res) {
         const response = { ...constants.defaultServerResponse };
         try {                 
-            const responseFromRepository = await userRepository.deleteUser(
-                {id: String(req.params.userId)}
+            const responseFromRepository = await userRepository.updateUser(
+                { isDelete: true },
+                { id: String(req.params.userId) }
             );
             response.status = HttpStatus.OK;
             response.message = constants.controllerMessage.SUCCESS;
             response.body = req.params.userId;
         } catch (error) {
-            console.log(error);
             response.status = HttpStatus.INTERNAL_SERVER_ERROR;
             response.message = error.message;
         }
@@ -170,8 +166,9 @@ class UserController {
     async deleteUsers(req, res) {
         const response = { ...constants.defaultServerResponse };
         try {  
-            const responseFromRepository = await userRepository.deleteUser(
-                {id: String(req.body.ids)}
+            const responseFromRepository = await userRepository.updateUser(
+                { isDelete: true },
+                { id: String(req.body.ids)}
             );
             response.status = HttpStatus.OK;
             response.message = constants.controllerMessage.SUCCESS;
