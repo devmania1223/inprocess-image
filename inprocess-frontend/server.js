@@ -16,7 +16,7 @@ app.get('*', (req, res, next) => {
     res.sendFile('index.html', { root: path.join(__dirname, 'build') });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.REACT_APP_PORT || process.env.PORT || 3001;
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
