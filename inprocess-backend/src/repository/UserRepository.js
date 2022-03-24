@@ -32,7 +32,12 @@ class UserRepository {
     async updateUser(filter, data) {
         filter.isDisable = false;
         filter.isDelete = false;
-        return await User.update(data, { where: filter, attributes });
+        await User.update(data, { where: filter, attributes });
+        const userDetails = await User.findOne({
+            where: filter,
+            attributes: attributes
+        });
+        return userDetails;
     }
 
     async findUser(filter, attributes = ['id', 'password', 'email', 'name', 'role']) {
