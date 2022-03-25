@@ -149,9 +149,8 @@ class UserController {
     async deleteUser(req, res) {
         const response = { ...constants.defaultServerResponse };
         try {                 
-            const responseFromRepository = await userRepository.updateUser(
-                { isDelete: true },
-                { id: String(req.params.userId) }
+            await userRepository.deleteUser(
+                {id: String(req.params.userId)}
             );
             response.status = HttpStatus.OK;
             response.message = constants.controllerMessage.SUCCESS;

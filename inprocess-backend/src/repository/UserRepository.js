@@ -40,6 +40,10 @@ class UserRepository {
         return userDetails;
     }
 
+    async deleteUser(filter) {
+        return await User.destroy({ where: filter });
+    }
+
     async findUser(filter, attributes = ['id', 'password', 'email', 'name', 'role']) {
         const userDetails = await User.findOne({
             where: filter,
