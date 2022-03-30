@@ -1,6 +1,6 @@
 'use strict';
 const moment = require('moment');
-
+const sequelize = require('sequelize');
 const Project = require('../models').Project;
 const Task = require('../models').Task;
 const User = require('../models').User;
@@ -29,6 +29,64 @@ class ProjectRepository {
         return await Project.findAll({ where: filter, attributes });
     }
 
+    async findAllProjectsView() {
+        const filter = {
+            isDisable: false,
+            isDelete: false,
+        };
+        const include = [
+            {
+                model: Milestone,
+                attributes: ['id', 'name', 'progress', [sequelize.fn('DATE_FORMAT', sequelize.col('date'), '%Y-%m-%d'), 'date']],
+                where: {
+                    progress: {
+                        [Op.gte]: 0
+                    }
+                }
+            }
+        ];
+        const attributes = ['id', 'name', 'risk_level'];
+        const projects = await Project.findAll({
+            include, where: filter, attributes
+        });
+        let viewData = [];
+        let viewRow = {};
+        let isFirstRow1, isFirstRow2;
+        projects.forEach(project1 => {
+            isFirstRow1 = true;
+            projects.forEach(project2 => {
+                isFirstRow2 = true;
+                for(let i = 0; i < project1.Milestones.length || i < project2.Milestones.length; i++){
+                    viewRow = {'projectName1':'','riskLevel1':'','milestoneName1':'','milestoneProgress1':'','milestoneDate1':'',
+                    'projectName2':'','riskLevel2':'','milestoneName2':'','milestoneProgress2':'','milestoneDate2':''};
+                    if(isFirstRow1){
+                        viewRow['projectName1'] = project1.name;
+                        viewRow['riskLevel1'] = project1.risk_level;
+                        isFirstRow1 = false;
+                    }
+                    if(isFirstRow2){
+                        viewRow['projectName2'] = project2.name;
+                        viewRow['riskLevel2'] = project2.risk_level;
+                        isFirstRow2 = false;
+                    }
+                    if(i < project1.Milestones.length ){
+                        viewRow['milestoneName1'] = project1.Milestones[i].name;
+                        viewRow['milestoneProgress1'] = project1.Milestones[i].progress + "%";
+                        viewRow['milestoneDate1'] = project1.Milestones[i].date;
+                    }
+                    if(i < project2.Milestones.length ){
+                        viewRow['milestoneName2'] = project2.Milestones[i].name;
+                        viewRow['milestoneProgress2'] = project2.Milestones[i].progress + "%";
+                        viewRow['milestoneDate2'] = project2.Milestones[i].date;
+                    }
+                    viewData.push(viewRow);
+                }
+            });
+        });
+
+        return viewData;
+    }
+
     async findProjectByFilter(filter) {
         filter.isDisable = false;
         filter.isDelete = false;
@@ -38,8 +96,8 @@ class ProjectRepository {
     async updateProjectByFilter(data, filter) {
         filter.isDisable = false;
         filter.isDelete = false;
-        await Milestone.destroy({where: {projectId: filter.id}});
-        console.log("data.milestones",data.milestones)
+        await Milestone.destroy({ where: { projectId: filter.id } });
+        console.log("data.milestones", data.milestones)
         await Milestone.bulkCreate(data.milestones);
         return await Project.update(data, { where: filter, attributes });
     }

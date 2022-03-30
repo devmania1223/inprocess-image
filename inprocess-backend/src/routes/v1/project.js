@@ -16,6 +16,12 @@ router.get(
     validation(projectSchema[0]),
     projectController.findAllProjects
 );
+router.get(
+    '/view',
+    auth,
+    validation(projectSchema[0]),
+    projectController.findAllProjectsView
+);
 router.post(
     '/',
     auth,

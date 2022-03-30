@@ -38,6 +38,21 @@ class ProjectController {
         return res.status(response.status).send(response);
     }
 
+    async findAllProjectsView(req, res) {
+        const response = { ...constants.defaultServerResponse };
+        try {
+            const responseFromRepository =
+                await projectRepository.findAllProjectsView(req.body);
+            response.status = HttpStatus.OK;
+            response.message = constants.controllerMessage.SUCCESS;
+            response.body = responseFromRepository;
+        } catch (error) {
+            response.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response.message = error.message;
+        }
+        return res.status(response.status).send(response);
+    }
+
     async findProjectById(req, res) {
         const response = { ...constants.defaultServerResponse };
         try {
