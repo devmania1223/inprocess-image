@@ -420,7 +420,7 @@ class ProjectRepository {
             dataObj.id = el.id;
             dataObj.name = el.name;
             dataObj.startDate = moment(el.startDate).format('YYYY-MM-DD');
-            dataObj.endDate = '';
+            dataObj.endDate =  moment(el.celoxisEndDate).format('YYYY-MM-DD');
             const ar = [];
             const startDate = moment(request.startDate);
             let total = 0;
@@ -1099,7 +1099,7 @@ class ProjectRepository {
         const userIds = [];
         const data = [];
         const project = await DB.sequelize.query(
-            `SELECT Projects.id, Projects.plannedEffort,Projects.celoxisId,Projects.name,  SUM(Timesheets.timespent) AS _total FROM Projects left join Timesheets ON Timesheets.projectId = Projects.id WHERE Projects.isDisable = 0 and Projects.isDelete = 0 and Projects.celoxisId != 0 GROUP BY Projects.id order by Projects.id;`,
+            `SELECT Projects.id, Projects.plannedEffort,Projects.celoxisId,Projects.name,  SUM(Timesheets.timespent) AS _total FROM Projects left join Timesheets ON Timesheets.projectId = Projects.id WHERE Projects.isDisable = 0 and Projects.isDelete = 0 and Projects.celoxisId != 0 GROUP BY Projects.id;`,
             { type: DB.Sequelize.QueryTypes.SELECT }
         );
 
@@ -1134,6 +1134,7 @@ class ProjectRepository {
         }
 
         let i = 1;
+        
         for (const resp of usersData) {
             const date = await this.getEndDate(
                 Math.ceil(resp.workload / 8),
@@ -1158,6 +1159,18 @@ class ProjectRepository {
             });
             i++;
         });
+        
+        usersData.sort((a, b) => {
+            if (a.username < b.username)
+              return -1;
+            if (a.username > b.username)
+              return 1;
+            return 0;
+          });
+        usersData.map((item, index) => {
+            item.id = index + 1;
+        });
+
         return { field, data: usersData };
     }
 
