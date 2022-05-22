@@ -83,12 +83,12 @@ app.use(function (err, req, res, next) {
     });
 });
 
-// (async () => {
-//     try {
-//         await Cron.start();
-//     } catch (error) {
-//         console.log(error);
-//     }
-// })();
+(async () => {
+    try {
+        await Cron.start();
+    } catch (error) {
+        console.log(error);
+    }
+})();
 
 module.exports = app;
