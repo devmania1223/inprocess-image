@@ -389,10 +389,11 @@ module.exports = class CeloxisService {
             const celxiosData = await this.getTaskDataFromCelxios(
                 task.celoxisId
             );
-            await Task.update({ sN: celxiosData.sN}, {where: {id: task.id}});
             if (!celxiosData[0].id) {
                 tasks[index].deleted = true;
                 await task.destroy();
+            } else {
+                await task.update({ sN: celxiosData[0].sN });
             }
             index++;
         }
@@ -412,10 +413,12 @@ module.exports = class CeloxisService {
             const celxiosData = await this.getTaskDataFromCelxios(
                 task.celoxisId
             );
-            await Task.update({ sN: celxiosData.sN }, { where: { id: task.id } });
             if (!celxiosData[0].id) {
                 parenttasks[index].deleted = true;
                 await task.destroy();
+            } else {
+                await task.update({ sN: celxiosData[0].sN });
+                console.log('step', celxiosData[0].sN)
             }
             index++;
         }
