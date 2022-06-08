@@ -9,7 +9,7 @@ module.exports = class Cron {
         while (1) {
             try {
                 await _CeloxisService.saveCeloxisRecordsInDBCron();
-                //await _CeloxisService.cleanDBRecordsCron();
+                //await _CeloxisService.cleanDBRecordsCron();                
                 console.log(`Waiting for ${_interval}​​​​​​​​ ms`);
                 await wait(_interval);
             } catch (error) {

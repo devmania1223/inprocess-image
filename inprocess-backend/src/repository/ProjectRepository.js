@@ -976,18 +976,8 @@ class ProjectRepository {
         );
         const totalEffort = parseInt(result[0].totalEffort);
         let tasks = [];
-        let index = 0;
         if (project.ParentTasks) {
-            console.log('step2')
             for(let res of project.ParentTasks)  {
-                const celxiosData = await celoxisService.getTaskDataFromCelxios(
-                    res.celoxisId
-                );
-                if (celxiosData[0].id) {
-                    project.ParentTasks[index].valid = true;
-                }
-                index ++;
-                console.log('step3', index)
                 if (res.Tasks.length > 0 && type === 1) {
                     res.Tasks.map((item) => {
                         if (item.plannedEffort === 0) {
@@ -1022,17 +1012,13 @@ class ProjectRepository {
                 }
             };
         }
-        console.log('step5',project.ParentTasks.filter(task => task.valid === true));
-       project.ParentTasks = project.ParentTasks.filter(task => task.valid === true);
        tasks = await this.filterData(tasks);
-       tasks = tasks.filter(task => task.valid === true);
        
        project.totalweight = total.toFixed(0);
        project.planned = (planned / taskCount).toFixed(0);
        project.actual = (actial / taskCount).toFixed(0);
        project.actualClient = (actial / taskCount).toFixed(0);
        project.tasks = tasks;
-       console.log('step6',project.tasks.length);
         return project;
     }
 
@@ -1042,7 +1028,6 @@ class ProjectRepository {
                 tasks[i].celoxisId
             );
             if (celxiosData[0].id) {
-                tasks[i].valid = true;
                 tasks[i].plannedFinish = moment(
                     celxiosData[0].plannedFinish
                 ).format('DD MMM');
@@ -1052,7 +1037,6 @@ class ProjectRepository {
                 tasks[i].valuePer = celxiosData[0].actualPercentComplete;
                 tasks[i]['celx'] = celxiosData;
             }
-            console.log('filterData', i)
         }
         return tasks;
     }

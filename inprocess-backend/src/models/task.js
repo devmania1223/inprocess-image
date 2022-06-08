@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
             ParentCelxiosId: DataTypes.INTEGER,
             plannedPercentComplete: DataTypes.INTEGER,
             actualPercentComplete: DataTypes.INTEGER,
-            plannedEffort: DataTypes.NUMBER
+            plannedEffort: DataTypes.NUMBER,
+            sN: DataTypes.INTEGER
         },
         {}
     );

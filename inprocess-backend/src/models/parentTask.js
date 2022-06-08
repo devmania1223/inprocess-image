@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
             celoxisId: DataTypes.NUMBER,
             plannedPercentComplete: DataTypes.INTEGER,
             actualPercentComplete: DataTypes.INTEGER,
-            plannedEffort: DataTypes.NUMBER
+            plannedEffort: DataTypes.NUMBER,
+            sN: DataTypes.INTEGER
         },
         {}
     );

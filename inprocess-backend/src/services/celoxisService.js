@@ -254,7 +254,7 @@ module.exports = class CeloxisService {
     };
 
     saveCelxiosDataTasks = async (data) => {
-        const { name, project, assignments, parent, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort } = data;
+        const { name, project, assignments, parent, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN } = data;
         if (parent) {
             if (project && project.data && project.data.name) {
                 const projectOld = await this.findProject({ name: project.data.name });
@@ -263,16 +263,16 @@ module.exports = class CeloxisService {
                 let ParentTaskId = 0
                 if (parent.data) {
                     const ParentProject = parent.data.project && parent.data.project.name ? parent.data.project : project;
-                    const parentData = await this.saveCelxiosDataParentTask({ name: parent.data.name, project: ParentProject, assignments: parent.data.assignments && parent.data.assignments.data ? parent.data.assignments : {}, celoxisId: parent.data.id, plannedPercentComplete: parent.data.plannedPercentComplete, actualPercentComplete: parent.data.actualPercentComplete, plannedEffort: parent.data.plannedEffort })
+                    const parentData = await this.saveCelxiosDataParentTask({ name: parent.data.name, project: ParentProject, assignments: parent.data.assignments && parent.data.assignments.data ? parent.data.assignments : {}, celoxisId: parent.data.id, plannedPercentComplete: parent.data.plannedPercentComplete, actualPercentComplete: parent.data.actualPercentComplete, plannedEffort: parent.data.plannedEffort, sN: parent.data.sN })
                     ParentCelxiosId = parent.data.id;
                     ParentTaskId = parentData.id;
 
                     let Task = await this.findTask({ name, celoxisId });
                     if (Task) {
                         const { id } = Task;
-                        await this.updateTask({ ParentTaskId, ParentCelxiosId, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort }, { id });
+                        await this.updateTask({ ParentTaskId, ParentCelxiosId, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN }, { id });
                     } else {
-                        Task = await this.createTask({ name, projectId, celoxisId, ParentCelxiosId, ParentTaskId, plannedPercentComplete, actualPercentComplete, plannedEffort });
+                        Task = await this.createTask({ name, projectId, celoxisId, ParentCelxiosId, ParentTaskId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN });
                     }
                     if (assignments.data) {
                         for (const assigment of assignments.data) {
@@ -308,16 +308,16 @@ module.exports = class CeloxisService {
     };
 
     saveCelxiosDataParentTask = async (data) => {
-        const { name, project, assignments, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort } = data;
+        const { name, project, assignments, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN } = data;
         if (project && project.data && project.data.name) {
             const projectOld = await this.findProject({ name: project.data.name });
             const projectId = projectOld ? projectOld.id : 0;
             let parentTask = await this.findParentTask({ name, celoxisId });
             if (parentTask) {
                 const { id } = parentTask;
-                await this.updateParentTask({ projectId, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort }, { id });
+                await this.updateParentTask({ projectId, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN }, { id });
             } else {
-                parentTask = await this.createParentTask({ name, projectId, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort });
+                parentTask = await this.createParentTask({ name, projectId, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN });
             }
             if (assignments.data) {
                 if (assignments.data) {
@@ -369,8 +369,8 @@ module.exports = class CeloxisService {
         }
         const tasks = await this.fetchDataFromCelxios(taskUrl);
         for (const task of tasks) {
-            const { name, project, assignments, parent, id: celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort } = task;
-            await this.saveCelxiosDataTasks({ name, project, assignments, parent, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort });
+            const { name, project, assignments, parent, id: celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN } = task;
+            await this.saveCelxiosDataTasks({ name, project, assignments, parent, celoxisId, plannedPercentComplete, actualPercentComplete, plannedEffort, sN });
         }
         return true;
     };
@@ -378,16 +378,18 @@ module.exports = class CeloxisService {
     cleanDBRecordsCron = async () => {
         let tasks = await Task.findAll({
             where: {
-                projectId: 115, 
+                projectId: 115,
                 celoxisId: {
                     [Op.lt]: 999999
-                } }
+                }
+            }
         });
         let index = 0;
         for (let task of tasks) {
             const celxiosData = await this.getTaskDataFromCelxios(
                 task.celoxisId
             );
+            await Task.update({ sN: celxiosData.sN}, {where: {id: task.id}});
             if (!celxiosData[0].id) {
                 tasks[index].deleted = true;
                 await task.destroy();
@@ -410,6 +412,7 @@ module.exports = class CeloxisService {
             const celxiosData = await this.getTaskDataFromCelxios(
                 task.celoxisId
             );
+            await Task.update({ sN: celxiosData.sN }, { where: { id: task.id } });
             if (!celxiosData[0].id) {
                 parenttasks[index].deleted = true;
                 await task.destroy();
@@ -442,7 +445,7 @@ module.exports = class CeloxisService {
     }
 
     getMilestones = async (id) => {
-        const axiosResponse = await axiosHelper.AxiosApiCall(`${constant.CELXIOS.API_BASE_URL}tasks`, JSON.stringify({"filter":{"project.id": id, "plannedEffort": 0, "milestone":"Yes"}}));
+        const axiosResponse = await axiosHelper.AxiosApiCall(`${constant.CELXIOS.API_BASE_URL}tasks`, JSON.stringify({ "filter": { "project.id": id, "plannedEffort": 0, "milestone": "Yes" } }));
         const { data } = axiosResponse.data;
         let task = data;
         task = task.filter((res) => res.name[0] === "M" && res.name[1] === "S");
@@ -451,19 +454,19 @@ module.exports = class CeloxisService {
     }
 
 
-    GetSortOrder(prop) {    
-        return function(a, b) {    
-            if (a[prop] > b[prop]) {    
-                return 1;    
-            } else if (a[prop] < b[prop]) {    
-                return -1;    
-            }    
-            return 0;    
-        }    
+    GetSortOrder(prop) {
+        return function (a, b) {
+            if (a[prop] > b[prop]) {
+                return 1;
+            } else if (a[prop] < b[prop]) {
+                return -1;
+            }
+            return 0;
+        }
     }
-    
+
     getCelxiosActiveProject = async (id) => {
-        const axiosResponse = await axiosHelper.AxiosApiCall(`${constant.CELXIOS.API_BASE_URL}projects`, JSON.stringify({"filter":{"state": "Activo"}}));
+        const axiosResponse = await axiosHelper.AxiosApiCall(`${constant.CELXIOS.API_BASE_URL}projects`, JSON.stringify({ "filter": { "state": "Activo" } }));
         const { data } = axiosResponse.data;
         return data;
     }
