@@ -976,8 +976,18 @@ class ProjectRepository {
         );
         const totalEffort = parseInt(result[0].totalEffort);
         let tasks = [];
+        let index = 0;
         if (project.ParentTasks) {
-            project.ParentTasks.map((res) => {
+            console.log('step2')
+            for(let res of project.ParentTasks)  {
+                const celxiosData = await celoxisService.getTaskDataFromCelxios(
+                    res.celoxisId
+                );
+                if (celxiosData[0].id) {
+                    project.ParentTasks[index].valid = true;
+                }
+                index ++;
+                console.log('step3', index)
                 if (res.Tasks.length > 0 && type === 1) {
                     res.Tasks.map((item) => {
                         if (item.plannedEffort === 0) {
@@ -1010,16 +1020,19 @@ class ProjectRepository {
                         tasks.push(res);
                     }
                 }
-            });
+            };
         }
-
-        tasks = await this.filterData(tasks);
-
-        project.totalweight = total.toFixed(0);
-        project.planned = (planned / taskCount).toFixed(0);
-        project.actual = (actial / taskCount).toFixed(0);
-        project.actualClient = (actial / taskCount).toFixed(0);
-        project.tasks = tasks;
+        console.log('step5',project.ParentTasks.filter(task => task.valid === true));
+       project.ParentTasks = project.ParentTasks.filter(task => task.valid === true);
+       tasks = await this.filterData(tasks);
+       tasks = tasks.filter(task => task.valid === true);
+       
+       project.totalweight = total.toFixed(0);
+       project.planned = (planned / taskCount).toFixed(0);
+       project.actual = (actial / taskCount).toFixed(0);
+       project.actualClient = (actial / taskCount).toFixed(0);
+       project.tasks = tasks;
+       console.log('step6',project.tasks.length);
         return project;
     }
 
@@ -1028,14 +1041,18 @@ class ProjectRepository {
             const celxiosData = await celoxisService.getTaskDataFromCelxios(
                 tasks[i].celoxisId
             );
-            tasks[i].plannedFinish = moment(
-                celxiosData[0].plannedFinish
-            ).format('DD MMM');
-            tasks[i].actualFinish = moment(celxiosData[0].actualFinish).format(
-                'DD MMM'
-            );
-            tasks[i].valuePer = celxiosData[0].actualPercentComplete;
-            tasks[i]['celx'] = celxiosData;
+            if (celxiosData[0].id) {
+                tasks[i].valid = true;
+                tasks[i].plannedFinish = moment(
+                    celxiosData[0].plannedFinish
+                ).format('DD MMM');
+                tasks[i].actualFinish = moment(celxiosData[0].actualFinish).format(
+                    'DD MMM'
+                );
+                tasks[i].valuePer = celxiosData[0].actualPercentComplete;
+                tasks[i]['celx'] = celxiosData;
+            }
+            console.log('filterData', i)
         }
         return tasks;
     }

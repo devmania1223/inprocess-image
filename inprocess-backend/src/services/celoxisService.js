@@ -13,6 +13,7 @@ const UserTask = require('../models').UserTask;
 const ParentTasks = require('../models').ParentTasks;
 const DB = require('../models');
 const { async } = require('crypto-random-string');
+const { Op } = require('sequelize');
 
 const projectUrl = 'projects?expand=manager,clients&';
 const userUrl = 'users?';
@@ -373,6 +374,51 @@ module.exports = class CeloxisService {
         }
         return true;
     };
+
+    cleanDBRecordsCron = async () => {
+        let tasks = await Task.findAll({
+            where: {
+                projectId: 115, 
+                celoxisId: {
+                    [Op.lt]: 999999
+                } }
+        });
+        let index = 0;
+        for (let task of tasks) {
+            const celxiosData = await this.getTaskDataFromCelxios(
+                task.celoxisId
+            );
+            if (!celxiosData[0].id) {
+                tasks[index].deleted = true;
+                await task.destroy();
+            }
+            index++;
+        }
+        tasks = tasks.filter(task => task.deleted === true);
+        console.log('deleted tasks', tasks)
+
+        let parenttasks = await ParentTasks.findAll({
+            where: {
+                projectId: 115,
+                celoxisId: {
+                    [Op.lt]: 999999
+                }
+            }
+        });
+        index = 0;
+        for (let task of parenttasks) {
+            const celxiosData = await this.getTaskDataFromCelxios(
+                task.celoxisId
+            );
+            if (!celxiosData[0].id) {
+                parenttasks[index].deleted = true;
+                await task.destroy();
+            }
+            index++;
+        }
+        parenttasks = parenttasks.filter(task => task.deleted === true);
+        console.log('deleted parenttasks', parenttasks)
+    }
 
     getWorlLoadCelxios = async () => {
         const url = "timeEntries?";
