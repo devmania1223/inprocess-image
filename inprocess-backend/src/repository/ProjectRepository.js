@@ -948,18 +948,20 @@ class ProjectRepository {
                                 celoxisId: {
                                     [Op.lt]: 999999
                                 }
-                            }
+                            },
                         }
                     ],
                     where: {
                         celoxisId: {
                             [Op.lt]: 999999
                         }
-                    }
-                }
+                    },
+                },
+                Milestone
             ],
             attributes: attributes,
-            where: { id }
+            where: { id },
+            order: [[ParentTasks, 'sN', 'asc'], [ParentTasks, Task, 'sN', 'asc'], [Milestone, 'id', 'asc']],
         });
 
         let total = 0;
@@ -1004,11 +1006,16 @@ class ProjectRepository {
                     planned += parseFloat(res.plannedPercentComplete);
                     actial += parseFloat(res.actualPercentComplete);
                     res.clientActual = res.actualPercentComplete;
-                    res.Tasks = [];
                     taskCount++;
-                    if (res.plannedEffort === 0) {
-                        tasks.push(res);
-                    }
+                    // if (res.plannedEffort === 0) {
+                    //     tasks.push(res);
+                    // }
+                    res.Tasks.map((item) => {
+                        if (item.plannedEffort === 0) {
+                            tasks.push(item);
+                        }
+                    });
+                    res.Tasks = [];
                 }
             };
         }
