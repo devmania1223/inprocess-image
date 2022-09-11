@@ -56,6 +56,12 @@ router.get(
     projectController.getActiveProjectReport
 );
 router.get(
+    '/getProjectUserReport',
+    auth,
+    validation(projectSchema[16]),
+    projectController.getProjectUserReport
+);
+router.get(
     '/getProjectResourcesHours',
     auth,
     validation(projectSchema[9]),

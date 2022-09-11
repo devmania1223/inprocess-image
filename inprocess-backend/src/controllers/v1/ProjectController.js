@@ -308,6 +308,20 @@ class ProjectController {
         }
         return res.status(response.status).send(response);
     }
+    async getProjectUserReport(req, res) {
+        const response = { ...constants.defaultServerResponse };
+        try {
+            const responseFromRepository =
+                await projectRepository.getProjectUserReport();
+            response.status = HttpStatus.OK;
+            response.message = constants.controllerMessage.SUCCESS;
+            response.body = responseFromRepository;
+        } catch (error) {
+            response.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response.message = error.message;
+        }
+        return res.status(response.status).send(response);
+    }
     async getMonthlyProjectReport(req, res) {
         const response = { ...constants.defaultServerResponse };
         try {

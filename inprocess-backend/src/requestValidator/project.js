@@ -183,5 +183,10 @@ module.exports = {
         model: 'getMonthlyProjectReport',
         group: 'Project',
         description: 'API to get all current month project report'
+    },
+    16: {
+        model: 'getProjectUserReport',
+        group: 'Project',
+        description: 'API to get project user report'
     }
 };

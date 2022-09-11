@@ -378,7 +378,6 @@ module.exports = class CeloxisService {
     cleanDBRecordsCron = async () => {
         let tasks = await Task.findAll({
             where: {
-                projectId: 115,
                 celoxisId: {
                     [Op.lt]: 999999
                 }
@@ -389,7 +388,7 @@ module.exports = class CeloxisService {
             const celxiosData = await this.getTaskDataFromCelxios(
                 task.celoxisId
             );
-            if (!celxiosData[0].id) {
+            if (!celxiosData[0].id || celxiosData[0].name !== task.name) {
                 tasks[index].deleted = true;
                 await task.destroy();
             } else {
@@ -402,7 +401,6 @@ module.exports = class CeloxisService {
 
         let parenttasks = await ParentTasks.findAll({
             where: {
-                projectId: 115,
                 celoxisId: {
                     [Op.lt]: 999999
                 }
@@ -413,7 +411,7 @@ module.exports = class CeloxisService {
             const celxiosData = await this.getTaskDataFromCelxios(
                 task.celoxisId
             );
-            if (!celxiosData[0].id) {
+            if (!celxiosData[0].id || celxiosData[0].name !== task.name) {
                 parenttasks[index].deleted = true;
                 await task.destroy();
             } else {
