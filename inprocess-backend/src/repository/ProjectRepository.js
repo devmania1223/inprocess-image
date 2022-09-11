@@ -1692,8 +1692,8 @@ class ProjectRepository {
         ];
 
         const data = await DB.sequelize.query(
-            `SELECT  bb.name username,cc.name projectname, aa.timespent FROM (SELECT userid, projectid, SUM(timespent)timespent FROM timesheets GROUP BY userid, projectid) aa LEFT JOIN
-            users bb ON aa.userid = bb.id LEFT JOIN projects cc ON aa.projectId = cc.id
+            `SELECT  bb.name username,cc.name projectname, aa.timespent FROM (SELECT userid, projectid, SUM(timespent)timespent FROM Timesheets GROUP BY userid, projectid) aa LEFT JOIN
+            Users bb ON aa.userid = bb.id LEFT JOIN Projects cc ON aa.projectId = cc.id
             WHERE bb.name IS NOT NULL AND cc.name IS NOT NULL
             ORDER BY username;`,
             { type: DB.Sequelize.QueryTypes.SELECT }
