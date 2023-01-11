@@ -25,7 +25,10 @@ class ProjectRepository {
         const filter = {
             isDisable: false,
             isDelete: false,
-            Manager: {[Op.not]:'', [Op.not]:'Executive'}
+            [Op.and]: [
+                {Manager: {[Op.not]:''}},
+                {Manager: {[Op.not]:'Executive'}},
+            ],
         };
         return await Project.findAll({ where: filter, attributes });
     }
