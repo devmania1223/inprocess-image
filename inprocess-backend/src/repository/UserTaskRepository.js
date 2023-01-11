@@ -4,6 +4,7 @@ const UserTask = require('../models').UserTask;
 const Project = require('../models').Project;
 const Task = require('../models').Task;
 const ParentTasks = require('../models').ParentTasks;
+const { Op } = require('sequelize');
 
 
 const attributes = {
@@ -27,13 +28,22 @@ class UserTaskRepository {
     }
 
     async findAllUserProject(filter) {
+        const projectFilter = {
+            isDisable: false,
+            isDelete: false,
+            Manager: {[Op.not]:'', [Op.not]:'Executive'}
+        };
         let projects = await Project.findAll({
+            where: projectFilter,
             include: [
                 {
                     model: UserTask,
                     where: filter,
                     attributes
                 }
+            ],
+            order: [
+                ['name', 'ASC'],
             ],
             attributes: projectAttributes
         });

@@ -24,7 +24,8 @@ class ProjectRepository {
     async findAllProjects() {
         const filter = {
             isDisable: false,
-            isDelete: false
+            isDelete: false,
+            Manager: {[Op.not]:'', [Op.not]:'Executive'}
         };
         return await Project.findAll({ where: filter, attributes });
     }
