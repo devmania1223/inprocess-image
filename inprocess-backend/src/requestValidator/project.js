@@ -188,5 +188,10 @@ module.exports = {
         model: 'getProjectUserReport',
         group: 'Project',
         description: 'API to get project user report'
+    },
+    17: {
+        model: 'getOverallReport',
+        group: 'Project',
+        description: 'API to get overall report'
     }
 };

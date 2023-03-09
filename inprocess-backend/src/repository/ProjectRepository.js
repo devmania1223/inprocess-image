@@ -1705,6 +1705,64 @@ class ProjectRepository {
         return { data, field };
     }
 
+    async getOverallReport() {
+        const projects =  await Project.findAll({ 
+            where: {
+                isDisable: false,
+                isDelete: false,
+                [Op.and]: [
+                    {Manager: {[Op.not]:''}},
+                    {Manager: {[Op.not]:'Executive'}},
+                ],
+            }, 
+            attributes: [
+                'name', 
+                'id', 
+            ]
+        });
+
+        const users = User.findAll({
+            where: {
+                isDisable: false,
+                isDelete: false
+            },
+            attributes: [
+                'name', 
+                'id', 
+            ]
+        });
+
+        const field = [
+            { label: 'Name', key: 'username' },
+            ...projects.map(project => {
+                return { label: project.name, key: 'project' + project.id}
+            }),
+        ];
+
+        const data = []
+        const rawData = await DB.sequelize.query(
+            `SELECT  bb.id userid, bb.name username, cc.id projectid, cc.name projectname, aa.timespent FROM (SELECT userid, projectid, SUM(timespent)timespent FROM Timesheets GROUP BY userid, projectid) aa LEFT JOIN
+            Users bb ON aa.userid = bb.id LEFT JOIN Projects cc ON aa.projectId = cc.id
+            WHERE bb.name IS NOT NULL AND cc.name IS NOT NULL
+            ORDER BY username;`,
+            { type: DB.Sequelize.QueryTypes.SELECT }
+        );
+
+        await users.map(user => {
+            let row = { username: user.name };
+            projects.map(project => {
+                const cell = rawData.find(item => item.projectid === project.id 
+                    && item.userid === user.id);
+                row = { ...row, ['project' + project.id]: cell?.timespent ?? 0 };
+            })
+            data.push(row);
+            console.log('created');
+        });        
+        console.log('return');
+
+        return { data, field };
+    }
+
     async getMonthlyProjectReport() {
         const field = [
             { label: 'number', key: 'code' },
