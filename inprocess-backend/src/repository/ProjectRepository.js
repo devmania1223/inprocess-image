@@ -41,7 +41,7 @@ class ProjectRepository {
         const include = [
             {
                 model: Milestone,
-                attributes: ['id', 'name', 'progress', [sequelize.fn('DATE_FORMAT', sequelize.col('date'), '%Y-%m-%d'), 'date']],
+                attributes: ['id', 'name', 'progress', 'invoiced', [sequelize.fn('DATE_FORMAT', sequelize.col('date'), '%Y-%m-%d'), 'date']],
                 where: {
                     progress: {
                         [Op.gte]: 0
@@ -1753,7 +1753,7 @@ class ProjectRepository {
             projects.map(project => {
                 const cell = rawData.find(item => item.projectid === project.id 
                     && item.userid === user.id);
-                row = { ...row, ['project' + project.id]: cell?.timespent ?? 0 };
+                row = { ...row, ['project' + project.id]: (cell ? cell.timespent : 0) };
             })
             data.push(row);
             console.log('created');

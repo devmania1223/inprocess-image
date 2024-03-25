@@ -11,6 +11,7 @@ class MilestoneRepository {
                 'name', 
                 'progress', 
                 'projectId', 
+                'invoiced', 
                 [sequelize.fn('DATE_FORMAT', sequelize.col('date'), '%m/%d/%Y'), 'date'], 
             ]
         });

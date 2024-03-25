@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             name: DataTypes.STRING,
             progress: DataTypes.INTEGER,
             date: DataTypes.DATE,
+            invoiced: DataTypes.BOOLEAN,
             isDisable: DataTypes.BOOLEAN,
             isDelete: DataTypes.BOOLEAN,
         },
